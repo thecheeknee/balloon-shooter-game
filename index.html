@@ -17,7 +17,7 @@
 			.gamearea{width:100%; height:70vh; position:relative; overflow:hidden;}
 			#gamearea{position:absolute; top:0; left:5%; height:100%; width:90%;}
 			.attacker{position:absolute; width:30px; height:50px;}
-			.balloon{position:relative; width:30px; height:30px; background: #ff0000; border-radius:50%; padding:5px; text-align:center; color:#FFFFFF; font-weight:bold;}
+			.balloon{position:relative; width:30px; height:30px; background: #ff0000; border-radius:50%; padding:5px; text-align:center; color:#FFFFFF; font-weight:bold; font-size:12px;}
 			#safe{width:100%; height:50vh;}
 			#unsafe{width:100%; height:20vh;}
 			.controls{width:100%; height:30vh; position:relative; overflow:hidden;}
@@ -41,7 +41,7 @@
 			<div class="fullscreen" id="game">
 				<div class="gamearea blue lighten-4">
 					<div id="gamearea">
-						<div class="attacker">
+						<div class="attacker" data-id="0">
 							<div class="balloon">A</div>
 							<div class="person"></div>
 						</div>
@@ -157,24 +157,41 @@
 				for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
 				return result;
 			}
+			function shiftBalloons(){
+				var ct = $('.attacker').length;
+				for(var i=1; i<=ct; i++){
+					var newtop = parseInt($('.attacker[data-id='+i+']').css('top'), 10)+10;
+					$('.attacker[data-id='+i+']').animate({'top':newtop+'px'});
+				}
+			}
 			function startGame(){
+				totalScore = 0;
+				var counter = 1;
 				create = window.setInterval(function(){
+					if(counter==20){
+						window.clearInterval(create);
+					}
 					var obj = Math.floor(Math.random() * Math.floor(3));
-					var pos = '';
+					var ypos = '';
 					var chard = randomString(1,rString);
 					switch(obj){
 						case 0:
 							//do not create anything. Proceed to push existing blocks
 							break;
 						case 1:
-							
+						case 2:
+							ypos = positions[Math.floor(Math.random()*positions.length)];
+							$('#gamearea').append('<div class="attacker" data-id="'+counter+'" style="top:0px; left:'+ypos+'px;"><div class="balloon">'+chard+'</div><div class="person"></div></div>');
+							counter++;
 							//create a new attacker at a random X position
 							break;
-						case 2:
+						default:
 							//
 					}
+					shiftBalloons();
+					console.log(obj);
 					
-				},300);
+				},2000);
 			}
 			
 		</script>
