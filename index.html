@@ -15,9 +15,11 @@
 			.fullscreen{width:100%; height:100vh; position:relative; overflow:hidden; transition:all 0.5s; -moz-transition:all 0.5s; -webkit-transition:all 0.5s;}
 			.compress{height:0 !important;}
 			.gamearea{width:100%; height:70vh; position:relative; overflow:hidden;}
+			#countdown{position:absolute; top:0; left:0; height:100%; width:100%; z-index:2; background:rgb(255,255,255,0.7);}
 			#gamearea{position:absolute; top:0; left:5%; height:100%; width:90%;}
-			.attacker{position:absolute; width:30px; height:50px;}
-			.balloon{position:relative; width:30px; height:30px; background: #ff0000; border-radius:50%; padding:5px; text-align:center; color:#FFFFFF; font-weight:bold; font-size:12px;}
+			.attacker{position:absolute; width:30px; height:50px;  transition:all 1.2s; -moz-transition:all 1.2s; -webkit-transition:all 1.2s;}
+			.balloon{position:relative; width:30px; height:30px; transition:all 0.5s; -moz-transition:all 0.5s; -webkit-transition:all 0.5s; background: #ff0000; border-radius:50%; padding:5px; text-align:center; color:#FFFFFF; font-weight:bold; font-size:12px;}
+			.attacker.popped .balloon{font-size:0px; transform:scale(2.0); -webkit-transform:scale(2.0); -moz-transform:scale(2.0); background:none; border:2px dashed #ff000;}
 			#safe{width:100%; height:50vh;}
 			#unsafe{width:100%; height:20vh;}
 			.controls{width:100%; height:30vh; position:relative; overflow:hidden;}
@@ -39,12 +41,14 @@
 				</div>
 			</div>
 			<div class="fullscreen" id="game">
+				<div id="countdown" class="valign-wrapper">
+					<div class="center-align div-center">
+						<h1 class="red-text center-align"></h1>
+						<p class="black-text">Get Ready!!</p>
+					</div>
+				</div>
 				<div class="gamearea blue lighten-4">
 					<div id="gamearea">
-						<div class="attacker" data-id="0">
-							<div class="balloon">A</div>
-							<div class="person"></div>
-						</div>
 					</div>
 					<div id="safe"></div>
 					<div id="unsafe"></div>
@@ -52,7 +56,7 @@
 				<div class="controls black lighten-2">
 					<div class="panel div-center">
 						<div class="valign-wrapper">
-							<div class="white-text right-align">Total Score - <span id="score">0</span></div>
+							<div class="white-text right-align">Killed - <span id="score">0</span></div>
 						</div>
 						<div class="valign-wrapper">
 							<div class="div-center center-align">
@@ -61,7 +65,7 @@
 						</div>
 						<div class="valign-wrapper">
 							<div id="alert">
-								<div id="on">
+								<div id="on" class="hide">
 									<div class="red-text">INCOMING!!!</div>
 								</div>
 								<div id="off">
@@ -70,7 +74,7 @@
 							</div>
 						</div>
 						<div class="valign-wrapper right-align">
-							<button id="exit" onClick="clickEnd()" class="waves-effect waves-light yellow red-text btn-large"><b>End Game</b></button>
+							<button id="exit" onClick="gameQuit()" class="waves-effect waves-light yellow red-text btn-large"><b>Quit</b></button>
 						</div>
 					</div>
 				</div>
@@ -87,21 +91,21 @@
 						<tbody>
 							<tr>
 								<td>Capitals</td>
-								<td class="right-align">10</td>
+								<td class="right-align" id="uppers">10</td>
 							</tr>
 							<tr>
 								<td>Lowers</td>
-								<td class="right-align">4</td>
+								<td class="right-align" id="lowers">4</td>
 							</tr>
 							<tr>
 								<td>Numbers</td>
-								<td class="right-align">15</td>
+								<td class="right-align" id="numbers">15</td>
 							</tr>
 						</tbody>
 						<tfoot>
 							<tr class="yellow-text">
 								<td>Total Score</td>
-								<td class="right-align">29</td>
+								<td class="right-align" id="totalscore">29</td>
 							</tr>
 						</tfoot>
 					</table>
@@ -115,7 +119,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 		<script>
-			var create, totalScore, dropWidth, dropZone, safeZone, dangerZone, size;
+			var create, totalScore, dropWidth, dropZone, safeZone, dangerZone, size, all, uppers, lowers, numbers;
 			var rString = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 			var positions = [];
 			function clickStart(){
@@ -124,21 +128,58 @@
 				$('#start').addClass('compress');
 				calculateScreen();
 				window.setTimeout(function(){
-					$('#firekey').focus();
+					preGame();
 				},1000);
 			}
 			function fire(){
-				console.log($('#firekey').val());
+				var k = $('#firekey').val();
+				var ct = $('.attacker').length;
+				for(var i=0; i<=ct; i++){
+					var atk = $('.attacker')[i];
+					if($(atk).text()==k){
+						$(atk).addClass('popped');
+						console.log(k,k.charCodeAt(0));
+						all++;
+						$('#score').text(all);
+						window.setTimeout(function(){
+							$(atk).remove();
+						},500);
+						break;
+					}
+				}
 				window.setTimeout(function(){
 					$('#firekey').val('');
-				},300);
+				},500);
+			}
+			function gameWon(){
+				$('#countdown h1').text('You Won!');
+				$('#countdown p').text('Our Savior! You protected the fortress till the end.');
+				$('#countdown').removeClass('hide');
+				window.setTimeout(clickEnd,5000);
+			}
+			function gameQuit(){
+				$('#countdown h1').text('Abandon Fort!');
+				$('#countdown p').text('Your people escaped but you lost the fort!');
+				$('#countdown').removeClass('hide');
+				window.setTimeout(clickEnd,5000);
+			}
+			function gameLost(){
+				$('#countdown h1').text('GAME OVER!');
+				$('#countdown p').text('Too Late! The fortress was breached.');
+				$('#countdown').removeClass('hide');
+				window.setTimeout(clickEnd,5000);
 			}
 			function clickEnd(){
+				$('#uppers').text(uppers);
+				$('#lowers').text(lowers);
+				$('#numbers').text(numbers);
+				//totalScore = (uppers*20) + (lowers*10) + (numbers*5);
+				totalScore = all*20;
+				$('#totalscore').text(totalScore);
 				$('#game').addClass('compress');
 			}
 			function goback(){
-				$('#end').addClass('compress');
-				$('#start').removeClass('compress');
+				location.reload();
 			}
 			function calculateScreen(){
 				dropWidth = $('#gamearea').width();
@@ -159,26 +200,54 @@
 			}
 			function shiftBalloons(){
 				var ct = $('.attacker').length;
-				for(var i=1; i<=ct; i++){
-					var newtop = parseInt($('.attacker[data-id='+i+']').css('top'), 10)+10;
-					$('.attacker[data-id='+i+']').animate({'top':newtop+'px'});
+				for(var i=0; i<=ct; i++){
+					var atk = $('.attacker')[i];
+					var newtop = parseInt($(atk).css('top'), 10)+30;
+					$(atk).css({'top':newtop+'px'});
+					if(newtop>safeZone){
+						$('#off').addClass('hide');
+						$('#on').removeClass('hide').addClass('blink');
+					}
+					if(newtop>(dropZone-30)){
+						gameLost();
+					}
 				}
 			}
-			function startGame(){
+			function preGame(){
+				all = 0;
 				totalScore = 0;
+				uppers = 0;
+				lowers = 0;
+				numbers = 0;
+				var ctdwn = 3;
+				var gameStart = window.setInterval(function(){
+					if(ctdwn==0){
+						window.clearInterval(gameStart);
+						$('#countdown').addClass('hide');
+						startGame();
+					} else {
+						$('#countdown h1').text(ctdwn);
+						ctdwn--;
+					}
+				},1000);
+			}
+			function startGame(){
 				var counter = 1;
 				create = window.setInterval(function(){
-					if(counter==20){
-						window.clearInterval(create);
-					}
 					var obj = Math.floor(Math.random() * Math.floor(3));
+					if(counter==40){
+						if($('.attacker').length==0){
+							window.clearInterval(create);
+							gameWon();
+						}
+						obj = 0;
+					}
 					var ypos = '';
 					var chard = randomString(1,rString);
 					switch(obj){
 						case 0:
 							//do not create anything. Proceed to push existing blocks
 							break;
-						case 1:
 						case 2:
 							ypos = positions[Math.floor(Math.random()*positions.length)];
 							$('#gamearea').append('<div class="attacker" data-id="'+counter+'" style="top:0px; left:'+ypos+'px;"><div class="balloon">'+chard+'</div><div class="person"></div></div>');
@@ -186,12 +255,12 @@
 							//create a new attacker at a random X position
 							break;
 						default:
+							break;
 							//
 					}
 					shiftBalloons();
-					console.log(obj);
 					
-				},2000);
+				},1000);
 			}
 			
 		</script>
