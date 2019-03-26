@@ -139,10 +139,10 @@
 					if($(atk).text()==k){
 						$(atk).addClass('popped');
 						console.log(k,k.charCodeAt(0));
-						all++;
-						$('#score').text(all);
 						window.setTimeout(function(){
 							$(atk).remove();
+							all++;
+							$('#score').text(all);
 						},500);
 						break;
 					}
@@ -174,7 +174,7 @@
 				$('#lowers').text(lowers);
 				$('#numbers').text(numbers);
 				//totalScore = (uppers*20) + (lowers*10) + (numbers*5);
-				totalScore = all*20;
+				totalScore = all*10;
 				$('#totalscore').text(totalScore);
 				$('#game').addClass('compress');
 			}
@@ -233,6 +233,7 @@
 			}
 			function startGame(){
 				var counter = 1;
+				$('#firekey').focus();
 				create = window.setInterval(function(){
 					var obj = Math.floor(Math.random() * Math.floor(3));
 					if(counter==40){
