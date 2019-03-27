@@ -154,7 +154,6 @@
 						$(atk).addClass('popped');
 						window.setTimeout(function(){
 							$(atk).remove();
-							$('#score').text(all);
 						},500);
 						break;
 					}
@@ -211,7 +210,6 @@
 				$('#uppers').text(uppers);
 				$('#lowers').text(lowers);
 				$('#numbers').text(numbers);
-				totalScore = all*10;
 				$('#totalscore').text(totalScore);
 				$('#game').addClass('compress');
 			}
@@ -282,7 +280,10 @@
 									gameWon();
 								}else{
 									window.clearInterval(create);
+									totalScore = balloons*dist;
 									console.log('Attackers Stopped: ' +listAtk.length);
+									console.log('Score: ' +totalScore);
+									$('#score').text(parseInt($('#score').text())+listAtk.length);
 									round++;
 									balloons = balloons+20;
 									timer = timer-200;
