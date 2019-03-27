@@ -122,7 +122,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 		<script>
-			var create, countAtk, round, totalScore, dropWidth, dropZone, safeZone, dangerZone, positions, size, all, uppers, lowers, numbers, listAtk;
+			var create, countAtk, round, totalScore, dropWidth, dropZone, safeZone, dangerZone, positions, size, uppers, lowers, numbers, listAtk;
 			var rString = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 			function clickStart(){
 				$('#game').removeClass('compress');
@@ -186,8 +186,6 @@
 				window.setTimeout(clickEnd,5000);
 			}
 			function clickEnd(){
-				all = 0;
-				totalScore = 0;
 				uppers = 0;
 				lowers = 0;
 				numbers = 0;
@@ -255,7 +253,6 @@
 					if(ctdwn==0){
 						window.clearInterval(gameStart);
 						$('#countdown').addClass('hide');
-						countAtk = 1;
 						round = 1;
 						listAtk = [];
 						startGame(20,1100, 10);
@@ -270,21 +267,23 @@
 				$('#firekey').focus();
 				$('#roundBox').text('Round ' + round);
 				$('#roundBox').show();
+				countAtk = 1;
 				window.setTimeout(function(){
 					$('#roundBox').hide('fade');
 					create = window.setInterval(function(){
-						if(countAtk==balloons){
+						if(countAtk>balloons){
 							if($('.attacker').length==0){//No attackers left
 								//Check if all rounds are done. Else start next round
 								if(round==3){
+									totalScore = balloons*dist;
 									gameWon();
 								}else{
+									round++;
 									window.clearInterval(create);
 									totalScore = balloons*dist;
 									console.log('Attackers Stopped: ' +listAtk.length);
 									console.log('Score: ' +totalScore);
 									$('#score').text(parseInt($('#score').text())+listAtk.length);
-									round++;
 									balloons = balloons+20;
 									timer = timer-200;
 									dist = dist+10;
